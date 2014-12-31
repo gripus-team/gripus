@@ -2,7 +2,7 @@
 
 #include "IXmlSerializable.h"
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 class ExternalForce : public IXmlSerializable {
 public:

@@ -2,7 +2,7 @@
 
 #include "tinyxml.h"
 #include <string>
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 #include <sstream>
 
@@ -17,8 +17,8 @@ public:
 	virtual sph() = 0;
 	virtual dsph() = 0;
 
-#define sdph(cls)			void cls##::serialize(TiXmlElement* myElement)
-#define dsdph(cls)			void cls##::deserialize(TiXmlElement* myElement)
+#define sdph(cls)			void cls ::serialize(TiXmlElement* myElement)
+#define dsdph(cls)			void cls ::deserialize(TiXmlElement* myElement)
 
 	static std::string serializeVector(glm::vec3 vector) {
 		return std::to_string(vector.x) + " " + std::to_string(vector.y) + " " + std::to_string(vector.z);

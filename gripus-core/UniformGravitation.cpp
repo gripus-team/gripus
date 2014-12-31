@@ -1,6 +1,6 @@
 #include "UniformGravitation.h"
 
-#include "glm\ext.hpp"
+#include "glm/ext.hpp"
 using namespace glm;
 
 UniformGravitation::UniformGravitation()

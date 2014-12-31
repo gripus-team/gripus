@@ -1,20 +1,20 @@
 #pragma once
 
 #include "IXmlSerializable.h"
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 class Projection : public IXmlSerializable {
 public:
-	enum ProjectionType;
-
+	enum ProjectionType {
+		Parallel,
+		Perspective
+	};
+	
 	Projection();
 	Projection(ProjectionType type, glm::mat3x2 size);
 	virtual ~Projection();
 
-	enum ProjectionType {
-		Parallel,
-		Perspective
-	} type;
+	ProjectionType type;
 	glm::mat3x2 size;
 
 	serialization();
