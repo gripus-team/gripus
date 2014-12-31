@@ -2,9 +2,7 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #define GL3_PROTOTYPES 1
-#include <GLFW\glfw3.h>
-//#include <wglext.h>
-#include <glext.h>
+#include <GLFW/glfw3.h>
 
 ShaderProgram::ShaderProgram()
 	: program(0), vertexShader(nullptr), fragmentShader(nullptr) {

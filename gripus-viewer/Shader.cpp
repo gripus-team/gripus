@@ -4,9 +4,7 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #define GL3_PROTOTYPES 1
-#include <GLFW\glfw3.h>
-//#include <wglext.h>
-#include <glext.h>
+#include <GLFW/glfw3.h>
 
 Shader::Shader(const char* shaderCode, unsigned int shaderType)
 	: shader(0), shaderCode(shaderCode), shaderType(shaderType) {

@@ -6,9 +6,8 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #define GL3_PROTOTYPES 1
-#include <GLFW\glfw3.h>
-//#include <wglext.h>
-#include <glext.h>
+#include <GLFW/glfw3.h>
+//#include <glext.h>
 
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
