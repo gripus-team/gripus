@@ -1,0 +1,21 @@
+<simulation>
+	<settings>
+		<time start="0.0" end="5" step="0.1" />
+		<precision delta="1.0" />
+		<projection type="perspective" size="-1e0 +1e0 -1e0 1e0 0.1 1e2" />
+		<view eye="0.0 0.0 0.0" center="0.0 0.0 -1.0" up="0.0 1.0 0.0" step="1.0" />
+	</settings>
+	<environment>
+		<gravitation type="point" position="0.0 0.0 0.0" acceleration="10.0" />
+	</environment>
+	<system>
+		<!-- A PLANET SYSTEM
+			<object mass="5.97219e24"	position="0.0 0.0 0.0"		velocity="0.0 0.0 0.0" />
+			<object mass="90.0"			position="0.0 0.0 8.400e6"	velocity="6.9e3 0.0 0.0" />
+		-->
+		<object id="ball" mass="1.0" position="0.0 100.0 0.0" velocity="0.0 0.0 0.0" />
+	</system>
+	<forces>
+		<force object="ball" force="0.0 5.0 0.0" startTime="1" endTime="1000.0" />
+	</forces>
+</simulation>
