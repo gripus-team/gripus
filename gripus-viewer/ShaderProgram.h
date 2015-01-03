@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <string>
 #include <ostream>
 
@@ -10,6 +11,7 @@ public:
 	ShaderProgram();
 	virtual ~ShaderProgram();
 
+	void bind_location(std::string name, unsigned int index);
 	bool link(std::ostream & err);
 	unsigned int getProgram();
 
@@ -17,4 +19,5 @@ public:
 	Shader* fragmentShader;
 private:
 	unsigned int program;
+	std::vector<std::string> attributes;
 };

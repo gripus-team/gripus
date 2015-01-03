@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "Scene.h"
 
-#include "tinyxml.h"
+#include <tinyxml.h>
 
 #include <string>
 #include <cfloat>

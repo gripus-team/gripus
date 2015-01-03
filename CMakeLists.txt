@@ -12,10 +12,13 @@ find_package(X11 REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 add_subdirectory(dependencies)
+include_directories("dependencies/glm")
+include_directories("dependencies/tinyxml")
 include_directories("dependencies/glfw/include")
+include_directories("dependencies/assimp/include")
 
 # gripus-core, as the main library of the project
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g3")
 add_subdirectory(gripus-core)
 
 # gripus-simulator and gripus-viewer both use gripus-core together with other libraries

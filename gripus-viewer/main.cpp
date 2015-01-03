@@ -7,8 +7,8 @@
 #define GL_GLEXT_PROTOTYPES 1
 #define GL3_PROTOTYPES 1
 #include <GLFW/glfw3.h>
-//#include <glext.h>
 
+#include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,6 +17,7 @@
 #include <Output.h>
 
 #include "ShaderProgram.h"
+#include "RenderMesh.h"
 
 void callback_error(int error, const char* desc);
 void callback_key(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -74,7 +75,7 @@ int main(int argc, char** argv) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_POLYGON_SMOOTH);
 
-	GLuint vao, vbo[2];
+	/*GLuint vao, vbo[2];
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(2, &vbo[0]);
@@ -84,29 +85,45 @@ int main(int argc, char** argv) {
 		-1.f, 0.f, -1.f,
 		1.f, 0.f, -1.f };
 	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), &triangle[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	float colors[9] {	1.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 1.0f };
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), &colors[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);*/
+
+	MemoryMesh* mmesh = new MemoryMesh(new Mesh("test", "objects/basketball.3DS", glm::mat4(1.f)));
+	mmesh->load();
+	RenderMesh* rmesh = new RenderMesh(mmesh);
+	rmesh->initialize();
 
 	ShaderProgram* program = new ShaderProgram();
-	program->vertexShader = Shader::load("shaders\vertex.shader", GL_VERTEX_SHADER);
-	program->fragmentShader = Shader::load("shaders\fragment.shader", GL_FRAGMENT_SHADER);
-	
+	program->vertexShader = Shader::load("shaders/vertex.shader", GL_VERTEX_SHADER);
+	program->fragmentShader = Shader::load("shaders/fragment.shader", GL_FRAGMENT_SHADER);
+
 	bool result = true;
 	result &= program->vertexShader->compile(std::cerr);
 	result &= program->fragmentShader->compile(std::cerr);
-	result &= program->link(std::cerr);
 	if (!result)
 		return EXIT_FAILURE;
-	glUseProgram(program->getProgram());
 
+	program->bind_location("vertex_position", 0);
+	program->bind_location("vertex_color", 2);
+
+	result = program->link(std::cerr);
+	if (!result)
+		return EXIT_FAILURE;
+
+	std::cerr << glGetAttribLocation(program->getProgram(), "vertex_position") << 
+		  ";" << glGetAttribLocation(program->getProgram(), "vertex_color") << std::endl;
+
+	GLint camera = glGetUniformLocation(program->getProgram(), "camera");
+
+	glUseProgram(program->getProgram());
 	while (!glfwWindowShouldClose(window)) {
 		lastTime = glfwGetTime();
 
@@ -117,12 +134,7 @@ int main(int argc, char** argv) {
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();*/
-
 		glm::mat4 projection;
-		glm::mat4 view = glm::lookAt(simulation->settings->view->eye, simulation->settings->view->center, simulation->settings->view->up);
-
 		glm::mat3x2 tmp = simulation->settings->projection->size;
 		switch (simulation->settings->projection->type) {
 		case Projection::ProjectionType::Parallel:
@@ -135,38 +147,11 @@ int main(int argc, char** argv) {
 			projection = glm::mat4(1.f);
 			break;
 		}
-		//glLoadMatrixf(glm::value_ptr(projection*view));
+		glm::mat4 view = glm::lookAt(simulation->settings->view->eye, simulation->settings->view->center, simulation->settings->view->up);
+		glUniformMatrix4fv(camera, 1, GL_FALSE, glm::value_ptr(projection * view));
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		/*glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();*/
-
-		//THE TESTING TRIANGLES
-		/*glBegin(GL_TRIANGLES);
-		glColor3f(1.f, 0.f, 0.f);
-		glVertex3f(0.f, 1.f, -1.f);
-		glVertex3f(-1.f, 0.f, -1.f);
-		glVertex3f(1.f, 0.f, -1.f);
-		glEnd();
-
-		glTranslatef(0.0f, 0.0f, -1.f);
-		glBegin(GL_TRIANGLES);
-		glColor3f(0.f, 1.f, 0.f);
-		glVertex3f(0.f, 1.f, -1.f);
-		glVertex3f(-1.f, 0.f, -1.f);
-		glVertex3f(1.f, 0.f, -1.f);
-		glEnd();
-
-		glTranslatef(0.0f, 0.0f, -1.f);
-		glBegin(GL_TRIANGLES);
-		glColor3f(0.f, 0.f, 1.f);
-		glVertex3f(0.f, 1.f, -1.f);
-		glVertex3f(-1.f, 0.f, -1.f);
-		glVertex3f(1.f, 0.f, -1.f);
-		glEnd();
-		*/
-		//END OF THE TESTING TRIANGLES, HEHEHE
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		rmesh->render(glm::mat4(1.f));
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -244,7 +229,7 @@ void callback_scroll(GLFWwindow* window, double x, double y) {
 
 	glm::vec3 displacement = simulation->settings->view->center - simulation->settings->view->eye;
 	if (glm::length(displacement) <= simulation->settings->view->step && /* && we're scrolling in: */ (x > 0 || y > 0))
-		displacement = displacement; //we can not normalize a zero vector, do nothin' jon snow
+		displacement = glm::vec3(0.f, 0.f, 0.f); //we can not normalize a zero vector, do nothin' jon snow, just leave it 0.f
 	else
 		displacement = glm::normalize(displacement);
 	displacement = displacement * (float)x + displacement * (float)y;

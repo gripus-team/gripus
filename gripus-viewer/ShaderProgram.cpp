@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 
 ShaderProgram::ShaderProgram()
-	: program(0), vertexShader(nullptr), fragmentShader(nullptr) {
-		
+	: program(0), attributes(16), vertexShader(nullptr), fragmentShader(nullptr) {
+
 }
 ShaderProgram::~ShaderProgram() {
 	//detach shaders
@@ -24,11 +24,21 @@ ShaderProgram::~ShaderProgram() {
 	}
 }
 
+void ShaderProgram::bind_location(std::string name, unsigned int index) {
+	this->attributes[index] = name;
+}
 bool ShaderProgram::link(std::ostream & err) {
 	this->program = glCreateProgram();
-
+	
 	glAttachShader(this->program, this->vertexShader->getShader());
 	glAttachShader(this->program, this->fragmentShader->getShader());
+
+	GLuint i = 0;
+	for(std::string attribute : attributes) {
+		if(attribute!="")
+			glBindAttribLocation(this->program, i, attribute.c_str());
+		i++;
+	}
 
 	glLinkProgram(this->program);
 
