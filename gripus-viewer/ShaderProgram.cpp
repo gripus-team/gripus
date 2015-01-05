@@ -43,7 +43,7 @@ bool ShaderProgram::link(std::ostream & err) {
 	glLinkProgram(this->program);
 
 	GLint howItEnded;
-	glGetShaderiv(this->program, GL_LINK_STATUS, &howItEnded);
+	glGetProgramiv(this->program, GL_LINK_STATUS, &howItEnded);
 	if (howItEnded == GL_FALSE) {
 		glGetProgramiv(this->program, GL_INFO_LOG_LENGTH, &howItEnded);
 

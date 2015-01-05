@@ -1,3 +1,5 @@
+#pragma once
+
 #include <MemoryMesh.h>
 
 #include <glm/glm.hpp>
@@ -11,12 +13,22 @@ public:
 	RenderMesh(MemoryMesh* mesh);
 	~RenderMesh();
 
+	MemoryMesh* getMemoryMesh();
+
 	void initialize();
-	void render(glm::mat4 model);
+	void render();
 	void finalize();
 private:
 	MemoryMesh* mesh;
-	GLuint vao;
-	GLuint* vbo;
-	unsigned int elements; //number of vertex indexes to draw, in all entities of this object
+
+	struct RenderEntry {
+		GLuint vao;
+		GLuint vbo;
+		GLuint ibo;
+		unsigned int elements;
+
+		bool hasTexture;
+		GLuint texture;
+	};
+	std::vector<RenderEntry*> entries;
 };

@@ -1,21 +1,62 @@
 #include "Renderer.h"
+#include "TexturePool.h"
 
-Renderer::Renderer(std::vector<RenderMesh*> meshes)
-	: meshes(meshes) {
+#include <MemoryMesh.h>
 
-}
-Renderer::~Renderer() {
-	for(RenderMesh* mm : this->meshes) {
-		delete mm;
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+std::vector<Renderer::RenderPair> Renderer::pairs;
+
+void Renderer::initialize(Simulation* simulation) {
+	TexturePool::initialize();
+
+	std::vector<RenderMesh*> rmeshes;
+	for(Mesh* m : simulation->scene->meshes) {
+		MemoryMesh* mm = new MemoryMesh(m);
+		mm->load();
+		RenderMesh* rm = new RenderMesh(mm);
+		rm->initialize();
+
+		rmeshes.push_back(rm);
+	}
+
+	for(Object* obj : simulation->system->objects) {
+		RenderPair pair;
+		pair.object = obj;
+		pair.mesh = nullptr;
+
+		for(int i = 0;i < rmeshes.size();i++) {
+			Mesh* m = simulation->scene->meshes[i];
+
+			if(m->name == obj->mesh) {
+				pair.mesh = rmeshes[i];
+				break;
+			}
+		}
+
+		if(pair.mesh==nullptr) {
+			std::cerr << "Unknown mesh \"" << obj->mesh << "\" found on object \"" << obj->id << "\"" << std::endl;
+			break;
+		}
+
+		pairs.push_back(pair);
 	}
 }
+void Renderer::render(GLuint modelUniformLocation) {
+	for(RenderPair & p : pairs) {
+		glm::mat4 model = glm::translate(glm::mat4(1.f), p.object->position);
+		glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
 
-void Renderer::initialize() {
-
-}
-void Renderer::render() {
-	
+		p.mesh->render();
+	}
 }
 void Renderer::finalize() {
-	
+	for(RenderPair & p : pairs) {
+		p.mesh->finalize();
+		delete p.mesh;
+	}
+
+	TexturePool::finalize();
 }

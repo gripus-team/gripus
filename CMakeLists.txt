@@ -13,6 +13,7 @@ include_directories(${OPENGL_INCLUDE_DIR})
 
 add_subdirectory(dependencies)
 include_directories("dependencies/glm")
+include_directories("dependencies/stb")
 include_directories("dependencies/tinyxml")
 include_directories("dependencies/glfw/include")
 include_directories("dependencies/assimp/include")

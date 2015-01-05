@@ -1,9 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include <Simulation.h>
-#include <Output.h>
 
 #include "RenderMesh.h"
 
@@ -13,13 +14,17 @@
 
 class Renderer {
 public:
-	Renderer(std::vector<RenderMesh*> meshes);
-	virtual ~Renderer();
+	Renderer() = delete;
+	virtual ~Renderer() = delete;
 
-	void initialize();
-	void render();
-	void finalize();
+	static void initialize(Simulation* simulation);
+	static void render(GLuint modelUniformLocation);
+	static void finalize();
 
 private:
-	std::vector<RenderMesh*> meshes;
+	struct RenderPair {
+		Object* object;
+		RenderMesh* mesh;
+	};
+	static std::vector<RenderPair> pairs;
 };

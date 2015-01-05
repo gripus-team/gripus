@@ -17,7 +17,7 @@
 #include <Output.h>
 
 #include "ShaderProgram.h"
-#include "RenderMesh.h"
+#include "Renderer.h"
 
 void callback_error(int error, const char* desc);
 void callback_key(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -66,44 +66,15 @@ int main(int argc, char** argv) {
 	glfwSetMouseButtonCallback(window, &callback_mouse);
 	glfwSetScrollCallback(window, &callback_scroll);
 
-	//glEnable(GL_CULL_FACE); //DON'T FORGET TO CULL 'EM ALL!!!
-	//glCullFace(GL_BACK);
-
+	glEnable(GL_CULL_FACE); glCullFace(GL_BACK);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_POLYGON_SMOOTH);
-
-	/*GLuint vao, vbo[2];
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(2, &vbo[0]);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	float triangle[9] { 0.f, 1.f, -1.f,
-		-1.f, 0.f, -1.f,
-		1.f, 0.f, -1.f };
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), &triangle[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	float colors[9] {	1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f };
-	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);*/
-
-	MemoryMesh* mmesh = new MemoryMesh(new Mesh("test", "objects/basketball.3DS", glm::mat4(1.f)));
-	mmesh->load();
-	RenderMesh* rmesh = new RenderMesh(mmesh);
-	rmesh->initialize();
+	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_TEXTURE_2D);
 
 	ShaderProgram* program = new ShaderProgram();
-	program->vertexShader = Shader::load("shaders/vertex.shader", GL_VERTEX_SHADER);
-	program->fragmentShader = Shader::load("shaders/fragment.shader", GL_FRAGMENT_SHADER);
+	program->vertexShader = Shader::load("shaders/color_vertex.shader", GL_VERTEX_SHADER);
+	program->fragmentShader = Shader::load("shaders/color_fragment.shader", GL_FRAGMENT_SHADER);
 
 	bool result = true;
 	result &= program->vertexShader->compile(std::cerr);
@@ -112,20 +83,23 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 
 	program->bind_location("vertex_position", 0);
+	program->bind_location("vertex_normal", 1);
 	program->bind_location("vertex_color", 2);
+	program->bind_location("vertex_texuv", 3);
 
 	result = program->link(std::cerr);
 	if (!result)
 		return EXIT_FAILURE;
 
-	std::cerr << glGetAttribLocation(program->getProgram(), "vertex_position") << 
-		  ";" << glGetAttribLocation(program->getProgram(), "vertex_color") << std::endl;
-
 	GLint camera = glGetUniformLocation(program->getProgram(), "camera");
-
+	GLint model = glGetUniformLocation(program->getProgram(), "model");
 	glUseProgram(program->getProgram());
+
+	Renderer::initialize(simulation);
+
 	while (!glfwWindowShouldClose(window)) {
-		lastTime = glfwGetTime();
+		double delta = glfwGetTime() - lastTime;
+		lastTime += delta;
 
 		int fw, fh;
 		glfwGetFramebufferSize(window, &fw, &fh);
@@ -150,15 +124,19 @@ int main(int argc, char** argv) {
 		glm::mat4 view = glm::lookAt(simulation->settings->view->eye, simulation->settings->view->center, simulation->settings->view->up);
 		glUniformMatrix4fv(camera, 1, GL_FALSE, glm::value_ptr(projection * view));
 
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		rmesh->render(glm::mat4(1.f));
+		Renderer::render(model);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	
+	Renderer::finalize();
+	
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	delete simulation;
+	delete output;
 
 	return EXIT_SUCCESS;
 }

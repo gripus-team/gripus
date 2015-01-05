@@ -11,6 +11,9 @@
 #include "Mesh.h"
 
 #include <vector>
+#include <string>
+
+#include <glm/glm.hpp>
 
 class MemoryMesh {
 public:
@@ -20,12 +23,12 @@ public:
 	Mesh* getMesh();
 	void load();
 
-	struct Entry {
+	struct MemoryEntry {
 		struct Vertex {
-			float vertex[4];
-			float normal[4];
-			float color[4];
-			float texcoord[4];
+			glm::vec4 vertex;
+			glm::vec4 normal;
+			glm::vec4 color;
+			glm::vec4 texuv;
 		};
 		Vertex* vertices;
 		unsigned vertices_count;
@@ -34,12 +37,17 @@ public:
 			unsigned int a;
 			unsigned int b;
 			unsigned int c;
-			//unsigned int d; //should be unused
+			//unsigned int d; //should be unused, we always triangulate
 		};
 		Face* faces;
 		unsigned int faces_count;
+		
+		bool hasTexture;
+		unsigned int textureIndex;
 	};
-	std::vector<Entry*> entries;
+	std::vector<MemoryEntry*> entries;
+	
+	std::vector<std::string> textures;
 private:
 	Mesh* mesh;
 };

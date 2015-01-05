@@ -1,47 +1,77 @@
 #include "RenderMesh.h"
+#include "ShaderProgramFond.h"
+#include "TexturePool.h"
+
+#include <cstdio>
+#include <iostream> //KILL THE NOOB WHO PUT THIS HERE!!!!!!!!!!!!
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 RenderMesh::RenderMesh(MemoryMesh* mesh)
-	: mesh(mesh), vao(0), elements(0) {
-		this->vbo = new GLuint[mesh->entries.size()*2]; //x2, once for vertex buffer, and once for indices
+	: mesh(mesh), entries() {
+		
 }
 RenderMesh::~RenderMesh() {
-	delete mesh;
+	for(RenderEntry* entry : entries)
+		delete entry;
+}
+
+MemoryMesh* RenderMesh::getMemoryMesh() {
+	return this->mesh;
 }
 
 void RenderMesh::initialize() {
-	glGenVertexArrays(1, &this->vao);
-	glGenBuffers(this->mesh->entries.size()*2, this->vbo);
+	for(MemoryMesh::MemoryEntry* me : this->mesh->entries) {
+		RenderEntry* re = new RenderEntry();
 
-	glBindVertexArray(this->vao);
-	glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
+		glGenVertexArrays(1, &re->vao);
+		glGenBuffers(1, &re->vbo);
+		glGenBuffers(1, &re->ibo);
 
-	int vboi = 0;
-	for(MemoryMesh::Entry* e : this->mesh->entries) {
-		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[vboi]);
-		glBufferData(GL_ARRAY_BUFFER, e->vertices_count * sizeof(MemoryMesh::Entry::Vertex), e->vertices, GL_STATIC_DRAW);
+		glBindVertexArray(re->vao);
+		glEnableVertexAttribArray(0);
+    	glEnableVertexAttribArray(1);
+    	glEnableVertexAttribArray(2);
+    	glEnableVertexAttribArray(3);
 
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::Entry::Vertex), (GLvoid*)0);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::Entry::Vertex), (GLvoid*)16);
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::Entry::Vertex), (GLvoid*)32);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::Entry::Vertex), (GLvoid*)48);
+    	glBindBuffer(GL_ARRAY_BUFFER, re->vbo);
+    	glBufferData(GL_ARRAY_BUFFER, me->vertices_count * sizeof(MemoryMesh::MemoryEntry::Vertex), me->vertices, GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo[vboi+1]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, e->faces_count * sizeof(MemoryMesh::Entry::Face), e->faces, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::MemoryEntry::Vertex), (GLvoid*)0);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::MemoryEntry::Vertex), (GLvoid*)16);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::MemoryEntry::Vertex), (GLvoid*)32);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(MemoryMesh::MemoryEntry::Vertex), (GLvoid*)48);
 
-		this->elements += e->faces_count * sizeof(MemoryMesh::Entry::Face) * 3;
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, re->ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, me->faces_count * sizeof(MemoryMesh::MemoryEntry::Face), me->faces, GL_STATIC_DRAW);
+		re->elements = me->faces_count * 3;
 
-		vboi += 2;
+		if((re->hasTexture = me->hasTexture)) {
+			re->texture = TexturePool::getTexture(this->mesh->textures[me->textureIndex]);
+		}
+
+		this->entries.push_back(re);
 	}
 }
-void RenderMesh::render(glm::mat4 model) {
-	glBindVertexArray(this->vao);
+void RenderMesh::render() {
+	for(RenderEntry* re : this->entries) {
+		glBindVertexArray(re->vao);
 
-	glDrawElements(GL_TRIANGLES, this->elements , GL_UNSIGNED_INT, 0);
+		if(re->hasTexture)
+			glActiveTexture(GL_TEXTURE0 + TexturePool::getSlot(re->texture));
+
+		glDrawElements(GL_TRIANGLES, re->elements, GL_UNSIGNED_INT, 0);
+	}
 }
 void RenderMesh::finalize() {
-	glDeleteBuffers(this->mesh->entries.size()*2, this->vbo);
-	glDeleteVertexArrays(1, &this->vao);
+	for(RenderEntry* re : this->entries) {
+		glDeleteVertexArrays(1, &re->vao);
+		glDeleteBuffers(1, &re->vbo);
+		glDeleteBuffers(1, &re->ibo);
+		
+		if(re->hasTexture) {
+			//piss on the textures, they will be deallocated by the pool
+		}
+	}
 }
