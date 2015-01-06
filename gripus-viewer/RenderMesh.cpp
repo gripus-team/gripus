@@ -54,12 +54,15 @@ void RenderMesh::initialize() {
 		this->entries.push_back(re);
 	}
 }
-void RenderMesh::render() {
+void RenderMesh::render(GLuint texUniformLocation) {
 	for(RenderEntry* re : this->entries) {
 		glBindVertexArray(re->vao);
 
-		if(re->hasTexture)
-			glActiveTexture(GL_TEXTURE0 + TexturePool::getSlot(re->texture));
+		if(re->hasTexture) {
+			unsigned int slot = TexturePool::getSlot(re->texture);
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glUniform1i(texUniformLocation, slot);
+		}
 
 		glDrawElements(GL_TRIANGLES, re->elements, GL_UNSIGNED_INT, 0);
 	}

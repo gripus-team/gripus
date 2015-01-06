@@ -2,7 +2,7 @@
 
 
 Output::Output(Simulation* simulation)
-	: simulation(simulation), output(nullptr) {
+	: simulation(simulation), output(nullptr), states(nullptr) {
 		
 }
 Output::~Output() {

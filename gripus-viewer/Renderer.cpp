@@ -44,12 +44,15 @@ void Renderer::initialize(Simulation* simulation) {
 		pairs.push_back(pair);
 	}
 }
-void Renderer::render(GLuint modelUniformLocation) {
+void Renderer::render(GLuint modelUniformLocation, GLuint texUniformLocation) {
 	for(RenderPair & p : pairs) {
-		glm::mat4 model = glm::translate(glm::mat4(1.f), p.object->position);
+		glm::mat4 model  = glm::translate(glm::mat4(1.f), p.object->position)
+						 * glm::rotate(glm::mat4(1.f), p.object->orientation.x, glm::vec3(1.0f, 0.0f, 0.0f))
+						 * glm::rotate(glm::mat4(1.f), p.object->orientation.y, glm::vec3(0.0f, 1.0f, 0.0f))
+						 * glm::rotate(glm::mat4(1.f), p.object->orientation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
 
-		p.mesh->render();
+		p.mesh->render(texUniformLocation);
 	}
 }
 void Renderer::finalize() {

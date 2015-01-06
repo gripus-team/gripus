@@ -33,6 +33,9 @@ void Simulation::simulate_step() {
 		
 		obj->position += obj->velocity * this->settings->time->getStep();
 		obj->velocity += resultant * this->settings->time->getStep() / obj->mass;
+		
+		//don't forget to rotate it, of course
+		obj->orientation += obj->rotation * this->settings->time->getStep();
 	}
 }
 

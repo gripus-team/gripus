@@ -11,11 +11,12 @@ public:
 	};
 	
 	Projection();
-	Projection(ProjectionType type, glm::mat3x2 size);
+	Projection(ProjectionType type, glm::mat3x2 size, glm::vec3 scale);
 	virtual ~Projection();
 
 	ProjectionType type;
 	glm::mat3x2 size;
+	glm::vec3 scale;
 
 	serialization();
 };

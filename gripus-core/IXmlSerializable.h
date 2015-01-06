@@ -24,12 +24,23 @@ public:
 	static std::string serializeVector(glm::vec3 vector) {
 		return std::to_string(vector.x) + " " + std::to_string(vector.y) + " " + std::to_string(vector.z);
 	}
+	static std::string serializeVector(glm::vec2 vector) {
+		return std::to_string(vector.x) + " " + std::to_string(vector.y);
+	}
 	static glm::vec3 deserializeVector(std::string vector) {
 		glm::vec3 vec;
 		std::stringstream ss(vector);
 		ss >> vec.x;
 		ss >> vec.y;
 		ss >> vec.z;
+
+		return vec;
+	}
+	static glm::vec2 deserializeVector2(std::string vector) {
+		glm::vec2 vec;
+		std::stringstream ss(vector);
+		ss >> vec.x;
+		ss >> vec.y;
 
 		return vec;
 	}

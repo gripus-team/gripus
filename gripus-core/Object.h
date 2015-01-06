@@ -8,7 +8,7 @@ class Object : public IXmlSerializable
 {
 public:
 	Object();
-	Object(std::string id, std::string mesh, float mass, glm::vec3 position, glm::vec3 centerOfMass, glm::vec3 velocity);
+	Object(std::string id, std::string mesh, float mass, glm::vec3 position, glm::vec3 centerOfMass, glm::vec3 velocity, glm::vec3 orientation, glm::vec3 rotation);
 	Object(Object* object); // a cloning constructor
 	virtual ~Object();
 
@@ -19,6 +19,9 @@ public:
 	glm::vec3 position;
 	glm::vec3 centerOfMass;
 	glm::vec3 velocity;
+	
+	glm::vec3 orientation;
+	glm::vec3 rotation;
 
 	serialization();
 };

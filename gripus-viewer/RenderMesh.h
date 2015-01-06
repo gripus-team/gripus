@@ -16,7 +16,7 @@ public:
 	MemoryMesh* getMemoryMesh();
 
 	void initialize();
-	void render();
+	void render(GLuint texUniformLocation);
 	void finalize();
 private:
 	MemoryMesh* mesh;

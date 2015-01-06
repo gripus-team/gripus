@@ -1,23 +1,30 @@
 <simulation>
 	<settings>
-		<time start="0.0" end="5" step="0.1" />
+		<time start="0.0" end="2592000" step="900" />
 		<precision delta="1.0" />
-		<projection type="perspective" size="-1e0 +1e0 -1e0 1e0 0.1 1e3" />
-		<view eye="0.0 0.0 0.0" center="0.0 0.0 -1.0" up="0.0 1.0 0.0" step="10.0" />
+		<projection type="perspective" size="-0.08284 0.08284 -0.08284 0.08284 0.1 1e3" scale="1e-6 1e-6 1e-6" />
+		<view eye="0.0 0.0 0.0" center="0.0 0.0 -1.0" up="0.0 1.0 0.0" step="1e1" />
+		<speed boost="86400" />
 	</settings>
 	<environment>
-		<gravitation type="point" position="0.0 0.0 0.0" acceleration="10.0" />
+		<!-- <gravitation type="point" position="0.0 0.0 0.0" acceleration="10.0" /> -->
 	</environment>
 	<system>
 		<!-- A PLANET SYSTEM -->
-			<object id="earth"	mesh="earth"	mass="5.97219e24"	position="0.0 0.0 0.0"			velocity="0.0 0.0 0.0" />
-			<object id="moon"	mesh="moon"		mass="7.35e22"		position="0.0 0.0 -3.90778e2"	velocity="6.9e3 0.0 0.0" />
+			<object id="earth"	mesh="earth"	mass="5.97219e24"	position="0.0 0.0 0.0"			velocity="0.0 0.0 0.0" 			rotation="0.0 -0.00007272205 0.0" />
+			<object id="moon"	mesh="moon"		mass="7.35e22"		position="0.0 0.0 -3.844e8"		velocity="1.01827015e3 0.0 0.0"		rotation="0.0 -0.00000264898 0.0"/>
 	</system>
 	<forces>
 		<!-- <force object="moon" force="0.0 5.0 0.0" startTime="1" endTime="1000.0" /> -->
 	</forces>
 	<scene>
-		<mesh name="earth" path="objects/earth/earth.obj" />
-		<mesh name="moon" path="objects/moon/moon.obj" />
+		<mesh name="earth" path="objects/earth/earth.obj" transform="	6.378e6		 	0.0 			0.0 			0.0
+																		0.0 			6.378e6		 	0.0 			0.0
+																		0.0 			0.0 			6.378e6			0.0
+																		0.0 			0.0 			0.0 			1.0"/>
+		<mesh name="moon" path="objects/moon/moon.obj" transform="	5.88949e4		0.0 			0.0 			0.0
+																	0.0 			5.88949e4		0.0 			0.0
+																	0.0 			0.0 			5.88949e4		0.0
+																	0.0 			0.0 			0.0 			1.0" />
 	</scene>
 </simulation>

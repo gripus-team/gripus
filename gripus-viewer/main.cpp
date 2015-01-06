@@ -29,19 +29,26 @@ Simulation* simulation;
 Output* output;
 
 double lastTime;
+bool pause = false;
 
 int main(int argc, char** argv) {
 	if (argc != 3) {
 		std::cerr << "Invalid command line arguments" << std::endl;
 		std::cerr << "Usage: gripus-viewer %path_to_simulation %path_to_output" << std::endl;
+		std::cerr << "       gripus-viewer --jit %path_to_simulation" << std::endl;
 		std::cerr << std::endl;
 
 		return EXIT_FAILURE;
 	}
 
-	simulation = Simulation::load(argv[1]);
-	output = new Output(simulation);
-	output->load(argv[2]);
+	if(std::string(argv[1])=="--jit") {
+		simulation = Simulation::load(argv[2]);
+		output = nullptr;
+	} else {
+		simulation = Simulation::load(argv[1]);
+		output = new Output(simulation);
+		output->load(argv[2]);
+	}
 
 	glfwSetErrorCallback(&callback_error);
 	if (!glfwInit())
@@ -60,8 +67,6 @@ int main(int argc, char** argv) {
 
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, &callback_key);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	glfwSetCursorPos(window, (int)(640 * ratio)/2, (int)640/2);
 	glfwSetCursorPosCallback(window, &callback_cursor);
 	glfwSetMouseButtonCallback(window, &callback_mouse);
 	glfwSetScrollCallback(window, &callback_scroll);
@@ -71,6 +76,7 @@ int main(int argc, char** argv) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_MULTISAMPLE);
 
 	ShaderProgram* program = new ShaderProgram();
 	program->vertexShader = Shader::load("shaders/color_vertex.shader", GL_VERTEX_SHADER);
@@ -93,10 +99,12 @@ int main(int argc, char** argv) {
 
 	GLint camera = glGetUniformLocation(program->getProgram(), "camera");
 	GLint model = glGetUniformLocation(program->getProgram(), "model");
+	GLint tex = glGetUniformLocation(program->getProgram(), "tex");
 	glUseProgram(program->getProgram());
 
 	Renderer::initialize(simulation);
 
+	float simtime = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		double delta = glfwGetTime() - lastTime;
 		lastTime += delta;
@@ -122,9 +130,21 @@ int main(int argc, char** argv) {
 			break;
 		}
 		glm::mat4 view = glm::lookAt(simulation->settings->view->eye, simulation->settings->view->center, simulation->settings->view->up);
-		glUniformMatrix4fv(camera, 1, GL_FALSE, glm::value_ptr(projection * view));
+		glUniformMatrix4fv(camera, 1, GL_FALSE, glm::value_ptr(projection * view * glm::scale(simulation->settings->projection->scale)));
 
-		Renderer::render(model);
+		if(!pause)
+			simtime += delta * simulation->settings->speed->boost;
+
+		while(simulation->settings->time->getTime() < simtime) {
+			if(output==nullptr)
+				simulation->simulate_step();
+			else
+				output->read();
+
+			simulation->settings->time->doStep();
+		}
+
+		Renderer::render(model, tex);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -165,6 +185,16 @@ void callback_key(GLFWwindow* window, int key, int scancode, int action, int mod
 		case GLFW_KEY_D:
 			directions[1] = (action == GLFW_PRESS ? 1.f : 0.f);
 			break;
+
+		case GLFW_KEY_P:
+			pause = (action == GLFW_PRESS ? !pause : pause);
+			break;
+		case GLFW_KEY_I:
+			simulation->settings->speed->boost *= (action == GLFW_PRESS ? 0.5f : 1.0f);
+			break;
+		case GLFW_KEY_O:
+			simulation->settings->speed->boost *= (action == GLFW_PRESS ? 2.0f : 1.0f);
+			break;
 		}
 	}
 
@@ -177,7 +207,12 @@ void callback_key(GLFWwindow* window, int key, int scancode, int action, int mod
 	simulation->settings->view->eye += displacement;
 	simulation->settings->view->center += displacement;
 }
+
+bool cursorActive = false;
 void callback_cursor(GLFWwindow * window, double x, double y) {
+	if(!cursorActive)
+		return;
+
 	double delta = glfwGetTime() - lastTime;
 
 	int fw, fh;
@@ -196,10 +231,19 @@ void callback_cursor(GLFWwindow * window, double x, double y) {
 	glfwSetCursorPos(window, fw/2, fh/2);
 }
 void callback_mouse(GLFWwindow* window, int button, int action, int mods) {
-	if (button==GLFW_MOUSE_BUTTON_1)
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	else if (button==GLFW_MOUSE_BUTTON_2)
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	if (button==GLFW_MOUSE_BUTTON_1 && action==GLFW_PRESS) {
+		if(cursorActive)
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		else {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+			int fw, fh;
+			glfwGetFramebufferSize(window, &fw, &fh);
+			glfwSetCursorPos(window, fw/2, fh/2);
+		}
+		
+		cursorActive = !cursorActive;
+	}
 }
 void callback_scroll(GLFWwindow* window, double x, double y) {
 	x *= simulation->settings->view->step;

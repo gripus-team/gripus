@@ -18,7 +18,7 @@ public:
 	virtual ~Renderer() = delete;
 
 	static void initialize(Simulation* simulation);
-	static void render(GLuint modelUniformLocation);
+	static void render(GLuint modelUniformLocation, GLuint texUniformLocation);
 	static void finalize();
 
 private:
