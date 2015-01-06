@@ -3,6 +3,7 @@
 #include "UniformGravitation.h"
 #include "PointGravitation.h"
 #include "PlanarGravitation.h"
+#include "MassGravitation.h"
 
 IGravitation* IGravitation::getGravitation(TiXmlElement* myElement) {
 	std::string str(myElement->Attribute("type"));
@@ -12,6 +13,8 @@ IGravitation* IGravitation::getGravitation(TiXmlElement* myElement) {
 		return new PointGravitation();
 	} else if (str == "planar") {
 		return new PlanarGravitation();
+	} else if (str == "mass") {
+		return new MassGravitation();
 	} else {
 		return new UniformGravitation();
 	}
