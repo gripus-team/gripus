@@ -19,16 +19,25 @@ glm::vec3 System::getForce(Object* obj, Object* parent) {
 		parent = obj;
 
 	glm::vec3 resultant(0.0f, 0.0f, 0.0f);
-
-	//first of all (and for now it's also all), calculate the gravitational forces between the objects
+	
 	for (Object* o : this->objects) {
 		if (o == parent)
 			continue;
-		
-		glm::vec3 distance = (o->position + o->centerOfMass) - (obj->position + obj->centerOfMass);
 
-		// resultant = [unit vec]displacement * G * m1 * m2 / |[vec]displacement|^2
-		resultant += glm::normalize(distance)*((Constants::G*obj->mass*o->mass) / (glm::length(distance)*glm::length(distance)));
+		glm::vec3 distance;
+		if(obj->mass != 0.f && o->mass != 0.f) {
+			// first of all, get the net gravitational force
+			distance = (o->position + o->centerOfMass) - (obj->position + obj->centerOfMass);
+			// resultant = [unit vec]distance * G * m1 * m2 / |[vec]distance|^2
+			resultant += glm::normalize(distance)*((Constants::G*obj->mass*o->mass) / (glm::length(distance)*glm::length(distance)));
+		}
+		
+		if(obj->charge != 0.f && o->charge != 0.f) {
+			//then, calculate the net force due to electric charge
+			distance = o->position - obj->position;
+			// resultant = [unit vec]distance * q1 * q2 / (4 * pi * permittivity * |[vec]distance|^2)
+			resultant += glm::normalize(distance)*((obj->charge * o->charge) / (4 * Constants::Pi * Constants::Epsilon0 * glm::length(distance) * glm::length(distance)));
+		}
 	}
 
 	return resultant;

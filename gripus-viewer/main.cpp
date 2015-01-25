@@ -31,6 +31,10 @@ Output* output;
 double lastTime;
 bool pause = false;
 
+bool axis = true;
+bool velocities = false;
+float lineWidth = 2.0;
+
 int main(int argc, char** argv) {
 	if (argc != 3) {
 		std::cerr << "Invalid command line arguments" << std::endl;
@@ -77,10 +81,11 @@ int main(int argc, char** argv) {
 	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_MULTISAMPLE);
+	glLineWidth(lineWidth);
 
 	ShaderProgram* program = new ShaderProgram();
-	program->vertexShader = Shader::load("shaders/color_vertex.shader", GL_VERTEX_SHADER);
-	program->fragmentShader = Shader::load("shaders/color_fragment.shader", GL_FRAGMENT_SHADER);
+	program->vertexShader = Shader::load("shaders/vertex.shader", GL_VERTEX_SHADER);
+	program->fragmentShader = Shader::load("shaders/fragment.shader", GL_FRAGMENT_SHADER);
 
 	bool result = true;
 	result &= program->vertexShader->compile(std::cerr);
@@ -99,10 +104,34 @@ int main(int argc, char** argv) {
 
 	GLint camera = glGetUniformLocation(program->getProgram(), "camera");
 	GLint model = glGetUniformLocation(program->getProgram(), "model");
+	GLint hasTex = glGetUniformLocation(program->getProgram(), "hasTex");
 	GLint tex = glGetUniformLocation(program->getProgram(), "tex");
 	glUseProgram(program->getProgram());
 
 	Renderer::initialize(simulation);
+
+	glm::vec3 axis_data[3][2][2] = { {{{ -simulation->settings->projection->size[2][1]/(2*simulation->settings->projection->scale[0]), 0.f, 0.f },	{ 1.f, 0.f, 0.f }},
+								{{ +simulation->settings->projection->size[2][1]/(2*simulation->settings->projection->scale[0]), 0.f, 0.f },	{ 1.f, 0.f, 0.f }}},
+
+								{{{ 0.f, -simulation->settings->projection->size[2][1]/(2*simulation->settings->projection->scale[1]), 0.f },	{ 0.f, 1.f, 0.f }},
+								{{ 0.f, +simulation->settings->projection->size[2][1]/(2*simulation->settings->projection->scale[1]), 0.f },	{ 0.f, 1.f, 0.f }}},
+
+								{{{ 0.f, 0.f, -simulation->settings->projection->size[2][1]/(2*simulation->settings->projection->scale[2]) },	{ 0.f, 0.f, 1.f }},
+								{{ 0.f, 0.f, +simulation->settings->projection->size[2][1]/(2*simulation->settings->projection->scale[2]) },	{ 0.f, 0.f, 1.f }}}
+								};
+	GLuint axis_vao, axis_vbo;
+	glGenVertexArrays(1, &axis_vao);
+	glGenBuffers(1, &axis_vbo);
+	glBindVertexArray(axis_vao);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(axis_data), axis_data, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3)*2, (GLvoid*)0);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3)*2, (GLvoid*)(sizeof(glm::vec3)));
+
+	//for default, let 'em have their textures
+	glUniform1i(hasTex, 1);
 
 	float simtime = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
@@ -144,7 +173,16 @@ int main(int argc, char** argv) {
 			simulation->settings->time->doStep();
 		}
 
-		Renderer::render(model, tex);
+		if(axis) {
+			glUniform1i(hasTex, 0);
+			glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.f)));
+
+			glBindVertexArray(axis_vao);
+			glDrawArrays(GL_LINES, 0, 3*2);
+
+			glUniform1i(hasTex, 1);
+		}
+		Renderer::render(model, hasTex, tex, velocities);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -194,6 +232,24 @@ void callback_key(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 		case GLFW_KEY_O:
 			simulation->settings->speed->boost *= (action == GLFW_PRESS ? 2.0f : 1.0f);
+			break;
+
+		case GLFW_KEY_X:
+			axis = (action == GLFW_PRESS ? !axis : axis);
+			break;
+		case GLFW_KEY_V:
+			velocities = (action == GLFW_PRESS ? !velocities : velocities);
+			break;
+		case GLFW_KEY_Z:
+			lineWidth += (action == GLFW_PRESS ? -1.f : 0.f);
+			if(lineWidth<1.f)
+				lineWidth = 1.f;
+			
+			glLineWidth(lineWidth);
+			break;
+		case GLFW_KEY_C:
+			lineWidth += (action == GLFW_PRESS ? +1.f : 0.f);
+			glLineWidth(lineWidth);
 			break;
 		}
 	}

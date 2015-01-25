@@ -18,7 +18,7 @@ public:
 	virtual ~Renderer() = delete;
 
 	static void initialize(Simulation* simulation);
-	static void render(GLuint modelUniformLocation, GLuint texUniformLocation);
+	static void render(GLuint modelUniformLocation, GLuint hasTexUniformLocation, GLuint texUniformLocation, bool showVelocities);
 	static void finalize();
 
 private:
@@ -27,4 +27,8 @@ private:
 		RenderMesh* mesh;
 	};
 	static std::vector<RenderPair> pairs;
+
+	static GLuint velocity_vao, velocity_vbo;
+	static glm::vec3 velocity_data[2][2];
+	static float velocity_boost;
 };

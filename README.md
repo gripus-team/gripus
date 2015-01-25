@@ -42,14 +42,7 @@ Writing a simulation XML file isn't anything complicated. There are no mandatory
 
 First of all there must be a root XML element called `<simulation>`
 
-    <simulation>
-        <!-- here goes the simulation -->
-    <simulation>
-There can be only a single simulation per XML file.
-
-The rest of the simulation format is explained in this example XML file
-
-	<simulation>
+	 <simulation>
 		<!-- Settings are common for both simulator and viewer -->
 		<settings>
 			<time start="0.0" end="2592000" step="900" />
@@ -111,13 +104,16 @@ The rest of the simulation format is explained in this example XML file
 				<object id="earth"	mesh="earth"	mass="5.97219e24"	position="0.0 0.0 0.0"			velocity="0.0 0.0 0.0" 			rotation="0.0 -0.00007272205 0.0" />
 				<!--
 					Places object `id` with mesh `mesh` and assigns specified properties.
+					Mass is in kilograms.
+					Position and velocity are in meters and meters per second respectively. 
+					Rotation and orientation are in counter-clockwise radians and radians per second respectively. 
 				-->
 	
 				<object id="moon"	mesh="moon"		mass="7.35e22"		position="0.0 0.0 -3.844e8"		velocity="1.01827015e3 0.0 0.0"		rotation="0.0 -0.00000264898 0.0"/>
 		</system>
 		<forces>
 			<force object="moon" force="0.0 100.0 0.0" startTime="1" endTime="1000.0" />
-			<!-- Applies a force `force` (vector) on object with id `object` in during simulation between time <`startTime`, `endTime`) -->
+			<!-- Applies a force `force` (vector) newtons on object with id `object` in during simulation between time <`startTime`, `endTime`) -->
 		</forces>
 		<scene>
 			<!-- Scenes don't use lights, and use only colors or diffuse textures. -->

@@ -20,10 +20,9 @@ MassGravitation::~MassGravitation() {
 	// DO NOTHIN' JON SNOW!
 }
 
-glm::vec3 MassGravitation::MassGravitation(float mass, glm::vec3 position) {
+glm::vec3 MassGravitation::getForce(float mass, glm::vec3 position) {
 	glm::vec3 displacement = position - this->position;
 	return -glm::normalize(displacement) * (Constants::G * this->mass * mass / (glm::length(displacement) * glm::length(displacement)));
-	
 }
 
 sdph(MassGravitation) {
