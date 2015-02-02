@@ -4,6 +4,7 @@
 
 #include "IXmlSerializable.h"
 #include "Object.h"
+#include "IRestriction.h"
 
 class System : public IXmlSerializable {
 public:
@@ -14,6 +15,7 @@ public:
 	virtual glm::vec3 getForce(Object* obj, Object* parent = nullptr);
 
 	std::vector<Object*> objects;
+	std::vector<IRestriction*> restrictions;
 
 	serialization();
 };

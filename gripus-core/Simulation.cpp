@@ -31,8 +31,17 @@ void Simulation::simulate_step() {
 		// 4. more to come...
 		glm::vec3 resultant = this->environment->getForce(obj) + this->system->getForce(obj) + this->forces->getForce(obj, this->settings->time);
 		
-		obj->position += obj->velocity * this->settings->time->getStep();
 		obj->velocity += resultant * this->settings->time->getStep() / obj->mass;
+	
+		glm::vec3 displacement = obj->velocity * this->settings->time->getStep();	
+		for(IRestriction* res : system->restrictions)
+			displacement = res->apply(obj->position, displacement);
+		obj->velocity = displacement / this->settings->time->getStep();
+	}
+	
+	//repositioning must be separated from the revaluation loop
+	for(Object* obj : this->system->objects) {
+		obj->position += obj->velocity * this->settings->time->getStep();
 		
 		//don't forget to rotate it, of course
 		obj->orientation += obj->rotation * this->settings->time->getStep();

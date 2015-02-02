@@ -36,7 +36,7 @@ glm::vec3 System::getForce(Object* obj, Object* parent) {
 			//then, calculate the net force due to electric charge
 			distance = o->position - obj->position;
 			// resultant = [unit vec]distance * q1 * q2 / (4 * pi * permittivity * |[vec]distance|^2)
-			resultant += glm::normalize(distance)*((obj->charge * o->charge) / (4 * Constants::Pi * Constants::Epsilon0 * glm::length(distance) * glm::length(distance)));
+			resultant += -glm::normalize(distance)*((obj->charge * o->charge) / (4 * Constants::Pi * Constants::Epsilon0 * glm::length(distance) * glm::length(distance)));
 		}
 	}
 
@@ -50,6 +50,13 @@ sdph(System) {
 
 		myElement->InsertEndChild(e);
 	}
+	
+	for (IRestriction* res : this->restrictions) {
+		TiXmlElement e("restriction");
+		res->serialize(&e);
+		
+		myElement->InsertEndChild(e);
+	}
 }
 dsdph(System) {
 	TiXmlElement* e = myElement->FirstChildElement("object");
@@ -59,5 +66,14 @@ dsdph(System) {
 		this->objects.push_back(obj);
 
 		e = e->NextSiblingElement("object");
+	}
+	
+	e = myElement->FirstChildElement("restriction");
+	while (e) {
+		IRestriction* res = IRestriction::getRestriction(e);
+		res->deserialize(e);
+		this->restrictions.push_back(res);
+
+		e = e->NextSiblingElement("restriction");
 	}
 }

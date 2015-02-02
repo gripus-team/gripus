@@ -1,0 +1,7 @@
+<object id="e0"	mesh="charge"	mass="1"	position="-0.448822 -0.951513 0.311036" charge="0.01" />
+<object id="e1"	mesh="charge"	mass="1"	position="-0.853165 0.528346 -0.907625" charge="0.01" />
+<object id="e2"	mesh="charge"	mass="1"	position="-0.070504 0.265885 -0.856103" charge="0.01" />
+<object id="e3"	mesh="charge"	mass="1"	position="-0.236410 0.029190 -0.960505" charge="0.01" />
+
+Sums: x=-1.6089, y=-0.128092, z=-2.4132
+Avgs: x=-0.402225, y=-0.032023, z=-0.603299

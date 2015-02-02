@@ -6,4 +6,6 @@ public:
 	
 	static float G;
 	static float Epsilon0;
+	
+	static float RadiusImprecision;
 };

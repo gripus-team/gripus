@@ -29,7 +29,7 @@ Simulation* simulation;
 Output* output;
 
 double lastTime;
-bool pause = false;
+bool pause = true;
 
 bool axis = true;
 bool velocities = false;
