@@ -1,6 +1,6 @@
 <simulation>
 	<settings>
-		<time start="0.0" end="20" step="0.0005" />
+		<time start="0.0" end="20" step="0.001" />
 		<precision delta="1.0" />
 		<projection type="perspective" size="-0.08284 0.08284 -0.08284 0.08284 0.1 1e2" scale="1.0 1.0 1.0" />
 		<view eye="0.0 0.0 0.0" center="0.0 0.0 -1.0" up="0.0 1.0 0.0" step="1e-0" />
@@ -11,7 +11,16 @@
 	</environment>
 	<system>
 		<!-- A CHARGED PARTICLES -->
-			<object id="e0"	mesh="charge"	mass="1"	position="0.361724 0.498072 -0.376841" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="0.5 0.5 0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="0.5 0.5 -0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="0.5 -0.5 0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="0.5 -0.5 -0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="-0.5 0.5 0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="-0.5 0.5 -0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="-0.5 -0.5 0.5" charge="0.01" />
+			<object id="e0"	mesh="charge"	mass="1"	position="-0.5 -0.5 -0.5" charge="0.01" />
+
+			<!--<object id="e0"	mesh="charge"	mass="1"	position="0.361724 0.498072 -0.376841" charge="0.01" />
 <object id="e1"	mesh="charge"	mass="1"	position="-0.002882 -0.481261 -0.038353" charge="0.01" />
 <object id="e2"	mesh="charge"	mass="1"	position="0.058918 0.121400 -0.279232" charge="0.01" />
 <object id="e3"	mesh="charge"	mass="1"	position="-0.494143 0.017635 -0.346137" charge="0.01" />
@@ -22,7 +31,7 @@
 <object id="e8"	mesh="charge"	mass="1"	position="-0.525776 0.548902 -0.283380" charge="0.01" />
 <object id="e9"	mesh="charge"	mass="1"	position="0.213383 0.490548 0.376301" charge="0.01" />
 <object id="e10"	mesh="charge"	mass="1"	position="-0.170897 0.070288 0.201160" charge="0.01" />
-<!--<object id="e11"	mesh="charge"	mass="1"	position="-0.530034 0.071266 -0.068009" charge="0.01" />
+<object id="e11"	mesh="charge"	mass="1"	position="-0.530034 0.071266 -0.068009" charge="0.01" />
 <object id="e12"	mesh="charge"	mass="1"	position="0.228054 0.336231 0.119367" charge="0.01" />
 <object id="e13"	mesh="charge"	mass="1"	position="0.460237 -0.079132 0.489237" charge="0.01" />
 <object id="e14"	mesh="charge"	mass="1"	position="-0.133107 0.247553 -0.020425" charge="0.01" />
